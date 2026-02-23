@@ -130,6 +130,14 @@ func (c *redisConnection) Add(name string, job cron.Job) error {
 	return c.client.HSet(c.ctx, c.jobKey, name, data).Err()
 }
 
+func (c *redisConnection) Enable(name string) error {
+	return c.setDisabled(name, false)
+}
+
+func (c *redisConnection) Disable(name string) error {
+	return c.setDisabled(name, true)
+}
+
 func (c *redisConnection) Remove(name string) error {
 	pipe := c.client.Pipeline()
 	pipe.HDel(c.ctx, c.jobKey, name)
@@ -222,4 +230,27 @@ func (c *redisConnection) logKey(jobName string) string {
 
 func (c *redisConnection) lockKey(key string) string {
 	return c.lockPrefix + key
+}
+
+func (c *redisConnection) setDisabled(name string, disabled bool) error {
+	raw, err := c.client.HGet(c.ctx, c.jobKey, name).Result()
+	if err == redis.Nil {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	var job cron.Job
+	if err := json.Unmarshal([]byte(raw), &job); err != nil {
+		return err
+	}
+	job.Name = name
+	job.Disabled = disabled
+
+	data, err := json.Marshal(job)
+	if err != nil {
+		return err
+	}
+	return c.client.HSet(c.ctx, c.jobKey, name, data).Err()
 }
