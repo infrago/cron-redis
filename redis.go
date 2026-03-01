@@ -6,13 +6,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bamgoo/bamgoo"
-	"github.com/bamgoo/cron"
+	"github.com/infrago/infra"
+	"github.com/infrago/cron"
 	"github.com/redis/go-redis/v9"
 )
 
 func init() {
-	bamgoo.Register("redis", &redisDriver{})
+	infra.Register("redis", &redisDriver{})
 }
 
 type (
@@ -67,17 +67,17 @@ func (d *redisDriver) Connection(inst *cron.Instance) (cron.Connection, error) {
 		}
 	}
 
-	jobKey := "bamgoo:cron:jobs"
+	jobKey := "infrago:cron:jobs"
 	if v, ok := setting["jobs_key"].(string); ok && v != "" {
 		jobKey = v
 	}
 
-	logPrefix := "bamgoo:cron:logs:"
+	logPrefix := "infrago:cron:logs:"
 	if v, ok := setting["logs_prefix"].(string); ok && v != "" {
 		logPrefix = v
 	}
 
-	lockPrefix := "bamgoo:cron:locks:"
+	lockPrefix := "infrago:cron:locks:"
 	if v, ok := setting["locks_prefix"].(string); ok && v != "" {
 		lockPrefix = v
 	}

@@ -1,2 +1,2 @@
 # cron-redis
-bamgoo redis cron driver.
+infrago redis cron driver.
