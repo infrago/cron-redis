@@ -1,50 +1,43 @@
 # cron-redis
 
-`cron-redis` 是 `cron` 模块的 `redis` 驱动。
+`cron-redis` 是 `github.com/infrago/cron` 的**redis 驱动**。
 
-## 安装
+## 包定位
 
-```bash
-go get github.com/infrago/cron@latest
-go get github.com/infrago/cron-redis@latest
-```
+- 类型：驱动
+- 作用：把 `cron` 模块的统一接口落到 `redis` 后端实现
 
-## 接入
+## 快速接入
 
 ```go
 import (
     _ "github.com/infrago/cron"
     _ "github.com/infrago/cron-redis"
-    "github.com/infrago/infra"
 )
-
-func main() {
-    infra.Run()
-}
 ```
-
-## 配置示例
 
 ```toml
 [cron]
 driver = "redis"
 ```
 
-## 公开 API（摘自源码）
+## `setting` 专用配置项
 
-- `func (d *redisDriver) Connection(inst *cron.Instance) (cron.Connection, error)`
-- `func (c *redisConnection) Open() error`
-- `func (c *redisConnection) Close() error`
-- `func (c *redisConnection) Add(name string, job cron.Job) error`
-- `func (c *redisConnection) Enable(name string) error`
-- `func (c *redisConnection) Disable(name string) error`
-- `func (c *redisConnection) Remove(name string) error`
-- `func (c *redisConnection) List() (map[string]cron.Job, error)`
-- `func (c *redisConnection) AppendLog(log cron.Log) error`
-- `func (c *redisConnection) History(jobName string, offset, limit int) (int64, []cron.Log, error)`
-- `func (c *redisConnection) Lock(key string, ttl time.Duration) (bool, error)`
+配置位置：`[cron].setting`
 
-## 排错
+- `port`
+- `server`
+- `host`
+- `addr`
+- `username`
+- `password`
+- `database`
+- `jobs_key`
+- `logs_prefix`
+- `locks_prefix`
+- `log_limit`
 
-- driver 未生效：确认模块段 `driver` 值与驱动名一致
-- 连接失败：检查 endpoint/host/port/鉴权配置
+## 说明
+
+- `setting` 仅对当前驱动生效，不同驱动键名可能不同
+- 连接失败时优先核对 `setting` 中 host/port/认证/超时等参数
